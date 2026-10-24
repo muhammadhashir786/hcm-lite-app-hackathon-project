@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monthly Payslip - HCM Lite</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      @media print {
+        .navbar,
+        .no-print {
+          display: none !important;
+        }
+        .container {
+          width: 100% !important;
+          max-width: 100% !important;
+          padding: 0 !important;
+        }
+        .card {
+          border: none !important;
+          box-shadow: none !important;
+          padding: 0 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand" id="navCompanyName">HCM Lite</div>
+      <nav class="nav-links">
+        <a href="#" id="backDashboardLink">Back to Dashboard</a>
+        <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
+      </nav>
+    </header>
+
+    <main class="container">
+      <!-- Admin Employee Selector & Month Filters -->
+      <div class="card no-print" style="padding: 16px; margin-bottom: 20px">
+        <div
+          style="
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              gap: 16px;
+              align-items: center;
+              flex-wrap: wrap;
+            "
+          >
+            <div
+              id="adminSelectorWrapper"
+              style="display: none; min-width: 220px"
+            >
+              <label
+                for="selectEmployee"
+                style="
+                  font-size: 0.8rem;
+                  font-weight: 600;
+                  display: block;
+                  margin-bottom: 4px;
+                "
+                >Select Employee</label
+              >
+              <select id="selectEmployee" class="form-control"></select>
+            </div>
+            <div>
+              <label
+                for="selectMonth"
+                style="
+                  font-size: 0.8rem;
+                  font-weight: 600;
+                  display: block;
+                  margin-bottom: 4px;
+                "
+                >Salary Month</label
+              >
+              <input type="month" id="selectMonth" class="form-control" />
+            </div>
+          </div>
+          <div>
+            <button
+              id="btnPrintPayslip"
+              class="btn btn-primary"
+              style="margin-top: 18px"
+            >
+              Print / Save as PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Printable Payslip Slip Card -->
+      <div
+        class="card"
+        id="payslipContainer"
+        style="
+          max-width: 750px;
+          margin: 0 auto;
+          border: 1px solid var(--border-color);
+          padding: 32px;
+        "
+      >
+        <div
+          style="
+            border-bottom: 2px solid var(--text-main);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+          "
+        >
+          <div>
+            <h2
+              id="slipCompanyName"
+              style="font-size: 1.4rem; font-weight: 700; margin-bottom: 2px"
+            >
+              Saylani IT
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem">
+              Official Monthly Salary Statement
+            </p>
+          </div>
+          <div style="text-align: right">
+            <span
+              class="badge badge-approved"
+              style="font-size: 0.85rem; padding: 6px 12px"
+              >GENERATED</span
+            >
+            <div
+              id="slipMonthDisplay"
+              style="font-size: 0.9rem; font-weight: 600; margin-top: 6px"
+            >
+              October 2026
+            </div>
+          </div>
+        </div>
+
+        <!-- Employee Info Grid -->
+        <div
+          style="
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 24px;
+            background: #f8fafc;
+            padding: 16px;
+            border-radius: var(--radius-sm);
+          "
+        >
+          <div>
+            <p style="font-size: 0.8rem; color: var(--text-muted)">
+              Employee Name
+            </p>
+            <p id="slipEmpName" style="font-weight: 600">--</p>
+          </div>
+          <div>
+            <p style="font-size: 0.8rem; color: var(--text-muted)">
+              Email Address
+            </p>
+            <p id="slipEmpEmail" style="font-weight: 600">--</p>
+          </div>
+          <div>
+            <p style="font-size: 0.8rem; color: var(--text-muted)">
+              Department
+            </p>
+            <p id="slipEmpDept" style="font-weight: 600">--</p>
+          </div>
+          <div>
+            <p style="font-size: 0.8rem; color: var(--text-muted)">
+              Total Monthly Working Days
+            </p>
+            <p id="slipWorkingDays" style="font-weight: 600">22 Days</p>
+          </div>
+        </div>
+
+        <!-- Calculation Breakdown Table -->
+        <div class="table-responsive" style="margin-bottom: 24px">
+          <table>
+            <thead>
+              <tr>
+                <th>Attendance Metric</th>
+                <th>Days Count</th>
+                <th>Rate / Formula</th>
+                <th style="text-align: right">Amount Impact</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Basic Monthly Salary</td>
+                <td>--</td>
+                <td>Fixed Package</td>
+                <td
+                  style="text-align: right; font-weight: 600"
+                  id="slipBasicSalary"
+                >
+                  Rs. 0
+                </td>
+              </tr>
+              <tr>
+                <td>Absent Days</td>
+                <td id="slipAbsentCount">0</td>
+                <td>Per Day Salary</td>
+                <td
+                  style="text-align: right; color: var(--danger)"
+                  id="slipAbsentDeduction"
+                >
+                  - Rs. 0
+                </td>
+              </tr>
+              <tr>
+                <td>Half Days (Under 5 hrs)</td>
+                <td id="slipHalfDayCount">0</td>
+                <td>0.5 x Per Day</td>
+                <td
+                  style="text-align: right; color: var(--warning)"
+                  id="slipHalfDayDeduction"
+                >
+                  - Rs. 0
+                </td>
+              </tr>
+              <tr style="background: #f1f5f9; font-weight: 700">
+                <td colspan="3">Net Payable Salary</td>
+                <td
+                  style="
+                    text-align: right;
+                    font-size: 1.1rem;
+                    color: var(--success);
+                  "
+                  id="slipNetSalary"
+                >
+                  Rs. 0
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div
+          style="
+            border-top: 1px dashed var(--border-color);
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+          "
+        >
+          <div>This is a system-generated payslip from HCM Lite.</div>
+          <div>Authorized Signature: __________________</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+      // Allow any logged in user
+      protectPage();
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const session = getSession();
+        const company = getCompany() || {
+          name: "HCM Lite",
+          workingDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        };
+        const users = getUsers();
+        const employees = users.filter((u) => u.role === "employee");
+
+        // UI elements
+        const navBrand = document.getElementById("navCompanyName");
+        const backLink = document.getElementById("backDashboardLink");
+        const adminWrapper = document.getElementById("adminSelectorWrapper");
+        const selectEmployee = document.getElementById("selectEmployee");
+        const selectMonth = document.getElementById("selectMonth");
+        const btnPrint = document.getElementById("btnPrintPayslip");
+
+        navBrand.textContent = company.name;
+        document.getElementById("slipCompanyName").textContent = company.name;
+        document
+          .getElementById("logoutBtn")
+          .addEventListener("click", () => logoutUser());
+
+        // Back link navigation based on role
+        if (session.role === "admin") {
+          backLink.href = "admin.html";
+          adminWrapper.style.display = "block";
+          // Populate employee select
+          employees.forEach((emp) => {
+            const opt = document.createElement("option");
+            opt.value = emp.id;
+            opt.textContent = `${emp.name} (${emp.department})`;
+            selectEmployee.appendChild(opt);
+          });
+        } else {
+          backLink.href = "employee.html";
+        }
+
+        // Set default current month (YYYY-MM)
+        const now = new Date();
+        const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+        selectMonth.value = yearMonth;
+
+        // Print handler
+        btnPrint.addEventListener("click", () => {
+          window.print();
+        });
+
+        // Calculate working days in a given year-month
+        function getMonthWorkingDays(year, month) {
+          const dayNames = [
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ];
+          const validDays = company.workingDays || [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+          ];
+          const totalDays = new Date(year, month, 0).getDate();
+          let count = 0;
+
+          for (let d = 1; d <= totalDays; d++) {
+            const dayOfWeek = dayNames[new Date(year, month - 1, d).getDay()];
+            if (validDays.includes(dayOfWeek)) {
+              count++;
+            }
+          }
+          return count || 22; // fallback to 22 if none matched
+        }
+
+        // Render Payslip Calculation
+        function generateSlip() {
+          let targetEmpId =
+            session.role === "admin" ? selectEmployee.value : session.id;
+          const targetEmp = employees.find(
+            (u) => String(u.id) === String(targetEmpId),
+          );
+
+          if (!targetEmp) {
+            document.getElementById("payslipContainer").style.display = "none";
+            return;
+          }
+          document.getElementById("payslipContainer").style.display = "block";
+
+          const [selectedYear, selectedMonthStr] = selectMonth.value
+            .split("-")
+            .map(Number);
+          const monthWorkingDays = getMonthWorkingDays(
+            selectedYear,
+            selectedMonthStr,
+          );
+
+          // Populate basic details
+          document.getElementById("slipEmpName").textContent = targetEmp.name;
+          document.getElementById("slipEmpEmail").textContent = targetEmp.email;
+          document.getElementById("slipEmpDept").textContent =
+            targetEmp.department;
+          document.getElementById("slipWorkingDays").textContent =
+            `${monthWorkingDays} Days`;
+
+          const dateObj = new Date(selectedYear, selectedMonthStr - 1);
+          document.getElementById("slipMonthDisplay").textContent =
+            dateObj.toLocaleString("en-US", { month: "long", year: "numeric" });
+
+          // Calculate attendance & deductions for selected month
+          const attendance = getAttendance();
+          const targetMonthPrefix = selectMonth.value; // "YYYY-MM"
+          const monthRecords = attendance.filter(
+            (a) =>
+              String(a.employeeId) === String(targetEmp.id) &&
+              a.date.startsWith(targetMonthPrefix),
+          );
+
+          const halfDays = monthRecords.filter(
+            (a) => a.status === "halfday",
+          ).length;
+          const presentDays = monthRecords.filter(
+            (a) => a.status === "present" || a.status === "late",
+          ).length;
+
+          // Leaves approved
+          const leaves = getLeaves();
+          const approvedLeaves = leaves.filter(
+            (l) =>
+              String(l.employeeId) === String(targetEmp.id) &&
+              l.status === "approved" &&
+              l.from.startsWith(targetMonthPrefix),
+          );
+          const leaveDaysCount = approvedLeaves.reduce(
+            (sum, l) => sum + (Number(l.days) || 0),
+            0,
+          );
+
+          // Absent days = month working days minus (present + halfdays + approved leaves)
+          const attendedTotal = presentDays + halfDays + leaveDaysCount;
+          const absentDays = Math.max(0, monthWorkingDays - attendedTotal);
+
+          // Business Rules Formulas (PDF Section 3)
+          const monthlySalary = Number(targetEmp.salary) || 0;
+          const perDaySalary = monthlySalary / monthWorkingDays;
+          const absentDeduction = perDaySalary * absentDays;
+          const halfDayDeduction = perDaySalary * (0.5 * halfDays);
+          const totalDeduction = absentDeduction + halfDayDeduction;
+          const netSalary = Math.max(0, monthlySalary - totalDeduction);
+
+          // Display in table
+          document.getElementById("slipBasicSalary").textContent =
+            `Rs. ${monthlySalary.toLocaleString()}`;
+          document.getElementById("slipAbsentCount").textContent =
+            `${absentDays} day(s)`;
+          document.getElementById("slipAbsentDeduction").textContent =
+            `- Rs. ${Math.round(absentDeduction).toLocaleString()}`;
+          document.getElementById("slipHalfDayCount").textContent =
+            `${halfDays} day(s)`;
+          document.getElementById("slipHalfDayDeduction").textContent =
+            `- Rs. ${Math.round(halfDayDeduction).toLocaleString()}`;
+          document.getElementById("slipNetSalary").textContent =
+            `Rs. ${Math.round(netSalary).toLocaleString()}`;
+        }
+
+        selectEmployee.addEventListener("change", generateSlip);
+        selectMonth.addEventListener("change", generateSlip);
+
+        generateSlip();
+      });
+    </script>
+  </body>
+</html>

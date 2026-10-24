@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - HCM Lite</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand" id="navCompanyName">HCM Lite</div>
+      <nav class="nav-links">
+        <a href="admin.html" class="active">Dashboard</a>
+        <a href="employees.html">Employees</a>
+        <a href="leaves.html">Leaves</a>
+        <a href="settings.html">Settings</a>
+        <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
+      </nav>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container">
+      <div style="margin-bottom: 24px">
+        <h1 style="font-size: 1.5rem; margin-bottom: 4px">Company Overview</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem">
+          Welcome back, <strong id="adminNameDisplay">Admin</strong>
+        </p>
+      </div>
+
+      <!-- Overview Metric Cards (CSS Grid) -->
+      <section
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+          margin-bottom: 24px;
+        "
+      >
+        <div class="card" style="margin-bottom: 0">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              font-weight: 600;
+            "
+          >
+            Total Employees
+          </div>
+          <div
+            id="statTotalEmployees"
+            style="font-size: 2rem; font-weight: 700; margin-top: 8px"
+          >
+            0
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              font-weight: 600;
+            "
+          >
+            Today Present
+          </div>
+          <div
+            id="statTodayPresent"
+            style="
+              font-size: 2rem;
+              font-weight: 700;
+              color: var(--success);
+              margin-top: 8px;
+            "
+          >
+            0
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              font-weight: 600;
+            "
+          >
+            Today Late
+          </div>
+          <div
+            id="statTodayLate"
+            style="
+              font-size: 2rem;
+              font-weight: 700;
+              color: var(--warning);
+              margin-top: 8px;
+            "
+          >
+            0
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              font-weight: 600;
+            "
+          >
+            Pending Leaves
+          </div>
+          <div
+            id="statPendingLeaves"
+            style="
+              font-size: 2rem;
+              font-weight: 700;
+              color: var(--danger);
+              margin-top: 8px;
+            "
+          >
+            0
+          </div>
+        </div>
+      </section>
+
+      <!-- Company Announcement Post Card (PDF Item 13) -->
+      <section class="card" style="margin-bottom: 24px">
+        <h2 style="font-size: 1.1rem; margin-bottom: 8px">
+          Company Announcement
+        </h2>
+        <p
+          style="
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 14px;
+          "
+        >
+          Broadcast an urgent notice or update to all employee dashboards.
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap">
+          <input
+            type="text"
+            id="announcementInput"
+            class="form-control"
+            placeholder="e.g. Office will remain closed on Friday for maintenance."
+            style="flex: 1; min-width: 250px"
+          />
+          <button id="btnPostAnnouncement" class="btn btn-primary btn-sm">
+            Post
+          </button>
+          <button id="btnClearAnnouncement" class="btn btn-outline btn-sm">
+            Clear
+          </button>
+        </div>
+        <div
+          id="announcementPostMsg"
+          style="
+            display: none;
+            font-size: 0.8rem;
+            color: var(--success);
+            margin-top: 8px;
+            font-weight: 600;
+          "
+        >
+          Announcement updated successfully!
+        </div>
+      </section>
+
+      <!-- Today's Attendance Table Preview -->
+      <section class="card">
+        <h2 style="font-size: 1.1rem; margin-bottom: 16px">
+          Today's Attendance Status
+        </h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Department</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="todayAttendanceTableBody">
+              <!-- Dynamically rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/helper.js"></script>
+    <script>
+      // Page access security check
+      protectPage("admin");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Load session and company info
+        const session = getSession();
+        const company = getCompany();
+
+        if (company) {
+          document.getElementById("navCompanyName").textContent = company.name;
+        }
+
+        if (session) {
+          document.getElementById("adminNameDisplay").textContent =
+            session.name;
+        }
+
+        // Logout handler
+        document.getElementById("logoutBtn").addEventListener("click", () => {
+          logoutUser();
+        });
+
+        // Load stats from localStorage
+        const users = getUsers();
+        const employees = users.filter((u) => u.role === "employee");
+        const attendance = getAttendance();
+        const leaves = getLeaves();
+
+        // 1. Total employees count
+        document.getElementById("statTotalEmployees").textContent =
+          employees.length;
+
+        // 2. Pending leaves count
+        const pendingLeaves = leaves.filter((l) => l.status === "pending");
+        document.getElementById("statPendingLeaves").textContent =
+          pendingLeaves.length;
+
+        // 3. Today's attendance filter & Table render
+        const todayStr = new Date().toISOString().split("T")[0];
+        const todayRecords = attendance.filter((a) => a.date === todayStr);
+
+        const presentCount = todayRecords.filter(
+          (a) => a.status === "present",
+        ).length;
+        const lateCount = todayRecords.filter(
+          (a) => a.status === "late",
+        ).length;
+
+        document.getElementById("statTodayPresent").textContent = presentCount;
+        document.getElementById("statTodayLate").textContent = lateCount;
+
+        // Render today's attendance table
+        const tableBody = document.getElementById("todayAttendanceTableBody");
+        tableBody.innerHTML = "";
+
+        if (todayRecords.length === 0) {
+          tableBody.innerHTML = `
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                No attendance records logged for today yet.
+              </td>
+            </tr>
+          `;
+        } else {
+          todayRecords.forEach((rec) => {
+            const emp = employees.find(
+              (u) => String(u.id) === String(rec.employeeId),
+            );
+            const empName = emp ? emp.name : "Unknown Employee";
+            const empDept = emp ? emp.department : "General";
+
+            let badgeClass = "badge-present";
+            if (rec.status === "late") badgeClass = "badge-late";
+            else if (rec.status === "halfday") badgeClass = "badge-halfday";
+            else if (rec.status === "absent") badgeClass = "badge-absent";
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td><strong>${empName}</strong></td>
+              <td><span class="badge" style="background: #e2e8f0; color: #334155;">${empDept}</span></td>
+              <td>${rec.checkIn || "--:--"}</td>
+              <td>${rec.checkOut || "--:--"}</td>
+              <td><span class="badge ${badgeClass}">${rec.status}</span></td>
+            `;
+            tableBody.appendChild(tr);
+          });
+        }
+
+        // Announcement handlers (PDF Item 13)
+        const announcementInput = document.getElementById("announcementInput");
+        const btnPostAnnouncement = document.getElementById(
+          "btnPostAnnouncement",
+        );
+        const btnClearAnnouncement = document.getElementById(
+          "btnClearAnnouncement",
+        );
+        const announcementPostMsg = document.getElementById(
+          "announcementPostMsg",
+        );
+
+        // Load existing announcement
+        announcementInput.value = getAnnouncement() || "";
+
+        btnPostAnnouncement.addEventListener("click", () => {
+          const text = announcementInput.value.trim();
+          saveAnnouncement(text);
+          announcementPostMsg.textContent =
+            "Announcement updated successfully!";
+          announcementPostMsg.style.display = "block";
+          setTimeout(() => {
+            announcementPostMsg.style.display = "none";
+          }, 2500);
+        });
+
+        btnClearAnnouncement.addEventListener("click", () => {
+          announcementInput.value = "";
+          saveAnnouncement("");
+          announcementPostMsg.textContent = "Announcement cleared!";
+          announcementPostMsg.style.display = "block";
+          setTimeout(() => {
+            announcementPostMsg.style.display = "none";
+            announcementPostMsg.textContent =
+              "Announcement updated successfully!";
+          }, 2500);
+        });
+      });
+    </script>
+  </body>
+</html>

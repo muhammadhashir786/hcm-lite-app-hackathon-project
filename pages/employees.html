@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manage Employees - HCM Lite</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand" id="navCompanyName">HCM Lite</div>
+      <nav class="nav-links">
+        <a href="admin.html">Dashboard</a>
+        <a href="employees.html" class="active">Employees</a>
+        <a href="leaves.html">Leaves</a>
+        <a href="settings.html">Settings</a>
+        <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+          gap: 12px;
+        "
+      >
+        <div>
+          <h1 style="font-size: 1.5rem; margin-bottom: 4px">
+            Employees Management
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.9rem">
+            Add new staff, assign departments, and maintain records.
+          </p>
+        </div>
+        <button id="openAddModalBtn" class="btn btn-primary">
+          + Add New Employee
+        </button>
+      </div>
+
+      <!-- Search and Filter Controls -->
+      <div class="card" style="padding: 16px; margin-bottom: 16px">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px">
+          <div>
+            <input
+              type="text"
+              id="searchInput"
+              class="form-control"
+              placeholder="Search by name or email..."
+            />
+          </div>
+          <div>
+            <select id="departmentFilter" class="form-control">
+              <option value="ALL">All Departments</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Design">Design</option>
+              <option value="Marketing">Marketing</option>
+              <option value="HR">HR</option>
+              <option value="Finance">Finance</option>
+              <option value="Operations">Operations</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employees Data Table -->
+      <div class="card">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Department</th>
+                <th>Monthly Salary</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="employeesTableBody">
+              <!-- Dynamically populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- Modal Form (Add / Edit Employee) -->
+    <div
+      id="employeeModal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      "
+    >
+      <div class="card" style="width: 100%; max-width: 480px; margin: 0">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+          "
+        >
+          <h3 id="modalTitle">Add New Employee</h3>
+          <button
+            id="closeModalBtn"
+            style="
+              background: none;
+              border: none;
+              font-size: 1.5rem;
+              cursor: pointer;
+              color: var(--text-muted);
+            "
+          >
+            &times;
+          </button>
+        </div>
+
+        <form id="employeeForm" novalidate>
+          <input type="hidden" id="employeeId" value="" />
+
+          <div class="form-group" id="group-empName">
+            <label for="empName">Full Name</label>
+            <input
+              type="text"
+              id="empName"
+              class="form-control"
+              placeholder="e.g. Ali Ahmed"
+              required
+            />
+            <div class="error-text">Full name is required.</div>
+          </div>
+
+          <div class="form-group" id="group-empEmail">
+            <label for="empEmail">Email Address</label>
+            <input
+              type="email"
+              id="empEmail"
+              class="form-control"
+              placeholder="ali@company.com"
+              required
+            />
+            <div class="error-text" id="empEmailError">
+              Valid email is required.
+            </div>
+          </div>
+
+          <div class="form-group" id="group-empPassword">
+            <label for="empPassword">Password (For employee login)</label>
+            <input
+              type="password"
+              id="empPassword"
+              class="form-control"
+              placeholder="At least 4 characters"
+              required
+            />
+            <div class="error-text">
+              Password must be at least 4 characters.
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+            <div class="form-group" id="group-empDept">
+              <label for="empDept">Department</label>
+              <select id="empDept" class="form-control" required>
+                <option value="">Select Dept</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Design">Design</option>
+                <option value="Marketing">Marketing</option>
+                <option value="HR">HR</option>
+                <option value="Finance">Finance</option>
+                <option value="Operations">Operations</option>
+              </select>
+              <div class="error-text">Select department.</div>
+            </div>
+
+            <div class="form-group" id="group-empSalary">
+              <label for="empSalary">Monthly Salary</label>
+              <input
+                type="number"
+                id="empSalary"
+                class="form-control"
+                placeholder="e.g. 60000"
+                min="1"
+                required
+              />
+              <div class="error-text">Salary must be greater than 0.</div>
+            </div>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: 10px;
+              margin-top: 16px;
+            "
+          >
+            <button type="button" id="cancelModalBtn" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" id="saveEmployeeBtn" class="btn btn-primary">
+              Save Employee
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/employees.js"></script>
+  </body>
+</html>

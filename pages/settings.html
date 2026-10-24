@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Settings - HCM Lite</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand" id="navCompanyName">HCM Lite</div>
+      <nav class="nav-links">
+        <a href="admin.html">Dashboard</a>
+        <a href="employees.html">Employees</a>
+        <a href="leaves.html">Leaves</a>
+        <a href="settings.html" class="active">Settings</a>
+        <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
+      </nav>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container">
+      <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 1.5rem; margin-bottom: 4px;">Company Rules & Settings</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+          Configure work timings, grace period, and yearly leave quota.
+        </p>
+      </div>
+
+      <div class="card" style="max-width: 600px;">
+        <!-- Notification Message -->
+        <div id="settingsAlert" style="display: none; padding: 12px; margin-bottom: 16px; border-radius: var(--radius-sm); font-size: 0.85rem;"></div>
+
+        <form id="settingsForm" novalidate>
+          <div class="form-group">
+            <label for="companyNameInput">Company Name</label>
+            <input type="text" id="companyNameInput" class="form-control" required />
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label for="startTimeInput">Office Start Time</label>
+              <input type="time" id="startTimeInput" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+              <label for="graceMinutesInput">Grace Period (Minutes)</label>
+              <input type="number" id="graceMinutesInput" class="form-control" min="0" max="60" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="leaveQuotaInput">Yearly Leave Quota (Days)</label>
+            <input type="number" id="leaveQuotaInput" class="form-control" min="1" max="60" required />
+          </div>
+
+          <div class="form-group">
+            <label style="margin-bottom: 8px;">Working Days</label>
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; font-size: 0.9rem;">
+              <label><input type="checkbox" name="workday" value="Monday" checked /> Mon</label>
+              <label><input type="checkbox" name="workday" value="Tuesday" checked /> Tue</label>
+              <label><input type="checkbox" name="workday" value="Wednesday" checked /> Wed</label>
+              <label><input type="checkbox" name="workday" value="Thursday" checked /> Thu</label>
+              <label><input type="checkbox" name="workday" value="Friday" checked /> Fri</label>
+              <label><input type="checkbox" name="workday" value="Saturday" /> Sat</label>
+              <label><input type="checkbox" name="workday" value="Sunday" /> Sun</label>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="margin-top: 10px;">
+            Save Settings
+          </button>
+        </form>
+      </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+      // Role protection
+      protectPage("admin");
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // Logout handler
+        document.getElementById("logoutBtn").addEventListener("click", () => logoutUser());
+
+        const company = getCompany();
+        if (company) {
+          document.getElementById("navCompanyName").textContent = company.name;
+          document.getElementById("companyNameInput").value = company.name || "";
+          document.getElementById("startTimeInput").value = company.startTime || "09:00";
+          document.getElementById("graceMinutesInput").value = company.graceMinutes ?? 15;
+          document.getElementById("leaveQuotaInput").value = company.leaveQuota ?? 18;
+
+          // Checkboxes state
+          const activeDays = company.workingDays || ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+          document.querySelectorAll('input[name="workday"]').forEach((cb) => {
+            cb.checked = activeDays.includes(cb.value);
+          });
+        }
+
+        // Form Submit
+        const form = document.getElementById("settingsForm");
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const name = document.getElementById("companyNameInput").value.trim();
+          const startTime = document.getElementById("startTimeInput").value;
+          const graceMinutes = parseInt(document.getElementById("graceMinutesInput").value, 10);
+          const leaveQuota = parseInt(document.getElementById("leaveQuotaInput").value, 10);
+
+          const selectedDays = [];
+          document.querySelectorAll('input[name="workday"]:checked').forEach((cb) => {
+            selectedDays.push(cb.value);
+          });
+
+          const alertBox = document.getElementById("settingsAlert");
+
+          if (!name || !startTime || isNaN(graceMinutes) || isNaN(leaveQuota) || selectedDays.length === 0) {
+            alertBox.style.display = "block";
+            alertBox.style.background = "var(--danger-bg)";
+            alertBox.style.color = "var(--danger)";
+            alertBox.textContent = "Please fill in all settings fields and select at least one working day.";
+            return;
+          }
+
+          // Update company settings object
+          const updatedCompany = {
+            ...company,
+            name,
+            startTime,
+            graceMinutes,
+            leaveQuota,
+            workingDays: selectedDays
+          };
+
+          saveCompany(updatedCompany);
+          document.getElementById("navCompanyName").textContent = name;
+
+          // Show success message
+          alertBox.style.display = "block";
+          alertBox.style.background = "var(--success-bg)";
+          alertBox.style.color = "var(--success)";
+          alertBox.textContent = "Settings updated successfully!";
+
+          setTimeout(() => {
+            alertBox.style.display = "none";
+          }, 3000);
+        });
+      });
+    </script>
+  </body>
+</html>

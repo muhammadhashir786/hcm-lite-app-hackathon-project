@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Dashboard - HCM Lite</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand" id="navCompanyName">HCM Lite</div>
+      <nav class="nav-links">
+        <a href="employee.html" class="active">My Dashboard</a>
+        <a href="payslip.html">My Payslip</a>
+        <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+          gap: 12px;
+        "
+      >
+        <div>
+          <h1 style="font-size: 1.5rem; margin-bottom: 4px">
+            Employee Self-Service
+          </h1>
+          <p style="color: var(--text-muted); font-size: 0.9rem">
+            Welcome back, <strong id="empNameDisplay">Employee</strong> (<span
+              id="empDeptDisplay"
+              >Department</span
+            >)
+          </p>
+        </div>
+        <button id="btnOpenLeaveModal" class="btn btn-primary">
+          + Apply for Leave
+        </button>
+      </div>
+
+      <!-- Company Announcement Banner (PDF Item 13) -->
+      <div
+        id="employeeAnnouncementBox"
+        class="card"
+        style="
+          display: none;
+          background: #eff6ff;
+          border-left: 4px solid #3b82f6;
+          padding: 14px 18px;
+          margin-bottom: 20px;
+        "
+      >
+        <div style="font-size: 0.8rem; font-weight: 700; color: #1d4ed8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">
+          📢 Company Announcement
+        </div>
+        <div id="employeeAnnouncementText" style="font-size: 0.95rem; color: #1e3a8a; line-height: 1.4;"></div>
+      </div>
+
+      <!-- Action Card: Daily Punching -->
+      <section class="card">
+        <h2 style="font-size: 1.1rem; margin-bottom: 12px">
+          Today's Attendance Punch
+        </h2>
+        <div
+          style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap"
+        >
+          <button id="btnCheckIn" class="btn btn-primary">Check In</button>
+          <button id="btnCheckOut" class="btn btn-outline" disabled>
+            Check Out
+          </button>
+          <div
+            id="punchStatusText"
+            style="font-size: 0.9rem; color: var(--text-muted)"
+          >
+            Status: Not Checked In
+          </div>
+        </div>
+      </section>
+
+      <!-- Personal Summary Stats -->
+      <section
+        style="
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 16px;
+          margin-bottom: 24px;
+        "
+      >
+        <div class="card" style="margin-bottom: 0">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              font-weight: 600;
+            "
+          >
+            Present Days
+          </div>
+          <div
+            id="statPresentDays"
+            style="
+              font-size: 2rem;
+              font-weight: 700;
+              color: var(--success);
+              margin-top: 8px;
+            "
+          >
+            0
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              font-weight: 600;
+            "
+          >
+            Late Marks
+          </div>
+          <div
+            id="statLateDays"
+            style="
+              font-size: 2rem;
+              font-weight: 700;
+              color: var(--warning);
+              margin-top: 8px;
+            "
+          >
+            0
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              font-weight: 600;
+            "
+          >
+            Half Days
+          </div>
+          <div
+            id="statHalfDays"
+            style="
+              font-size: 2rem;
+              font-weight: 700;
+              color: var(--warning);
+              margin-top: 8px;
+            "
+          >
+            0
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0">
+          <div
+            style="
+              font-size: 0.85rem;
+              color: var(--text-muted);
+              font-weight: 600;
+            "
+          >
+            Remaining Leaves
+          </div>
+          <div
+            id="statLeavesLeft"
+            style="
+              font-size: 2rem;
+              font-weight: 700;
+              color: var(--primary);
+              margin-top: 8px;
+            "
+          >
+            0
+          </div>
+        </div>
+      </section>
+
+      <!-- Personal Attendance History Table -->
+      <section class="card">
+        <h2 style="font-size: 1.1rem; margin-bottom: 16px">
+          My Attendance Records
+        </h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Check In</th>
+                <th>Check Out</th>
+                <th>Total Hours</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- My Leave Applications Table -->
+      <section class="card">
+        <h2 style="font-size: 1.1rem; margin-bottom: 16px">
+          My Leave Applications
+        </h2>
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Days</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Admin Comment</th>
+              </tr>
+            </thead>
+            <tbody id="myLeavesTableBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Leave Application Modal -->
+    <div
+      id="leaveModal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      "
+    >
+      <div class="card" style="width: 100%; max-width: 480px; margin: 0">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+          "
+        >
+          <h3>Apply for Leave</h3>
+          <button
+            id="btnCloseLeaveModal"
+            style="
+              background: none;
+              border: none;
+              font-size: 1.5rem;
+              cursor: pointer;
+              color: var(--text-muted);
+            "
+          >
+            &times;
+          </button>
+        </div>
+
+        <div
+          id="leaveFormError"
+          style="
+            display: none;
+            padding: 10px;
+            margin-bottom: 14px;
+            border-radius: var(--radius-sm);
+            font-size: 0.85rem;
+            background: var(--danger-bg);
+            color: var(--danger);
+          "
+        ></div>
+
+        <form id="leaveApplyForm" novalidate>
+          <div class="form-group">
+            <label for="leaveType">Leave Type</label>
+            <select id="leaveType" class="form-control" required>
+              <option value="Casual">Casual Leave</option>
+              <option value="Sick">Sick Leave</option>
+              <option value="Annual">Annual Leave</option>
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px">
+            <div class="form-group">
+              <label for="leaveFrom">From Date</label>
+              <input type="date" id="leaveFrom" class="form-control" required />
+            </div>
+
+            <div class="form-group">
+              <label for="leaveTo">To Date</label>
+              <input type="date" id="leaveTo" class="form-control" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="leaveReason">Reason</label>
+            <textarea
+              id="leaveReason"
+              class="form-control"
+              rows="3"
+              placeholder="Brief reason..."
+              required
+            ></textarea>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: 10px;
+              margin-top: 16px;
+            "
+          >
+            <button
+              type="button"
+              id="btnCancelLeaveModal"
+              class="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Submit Application
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/attendance.js"></script>
+    <script src="../js/leave.js"></script>
+    <script src="../js/helper.js"></script>
+    <script>
+      // Load announcement on employee dashboard
+      document.addEventListener("DOMContentLoaded", () => {
+        const announcementBox = document.getElementById("employeeAnnouncementBox");
+        const announcementText = document.getElementById("employeeAnnouncementText");
+        const activeNotice = getAnnouncement();
+
+        if (activeNotice && activeNotice.trim() !== "") {
+          announcementText.textContent = activeNotice;
+          announcementBox.style.display = "block";
+        } else {
+          announcementBox.style.display = "none";
+        }
+      });
+    </script>
+  </body>
+</html>

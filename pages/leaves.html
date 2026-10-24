@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Leave Requests - HCM Lite</title>
+    <link rel="stylesheet" href="../css/style.css" />
+  </head>
+  <body>
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+      <div class="nav-brand" id="navCompanyName">HCM Lite</div>
+      <nav class="nav-links">
+        <a href="admin.html">Dashboard</a>
+        <a href="employees.html">Employees</a>
+        <a href="leaves.html" class="active">Leaves</a>
+        <a href="settings.html">Settings</a>
+        <button id="logoutBtn" class="btn btn-outline btn-sm">Logout</button>
+      </nav>
+    </header>
+
+    <main class="container">
+      <div style="margin-bottom: 24px">
+        <h1 style="font-size: 1.5rem; margin-bottom: 4px">
+          Leave Requests Review
+        </h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem">
+          Approve or reject employee leave applications with feedback.
+        </p>
+      </div>
+
+      <div class="card">
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Type</th>
+                <th>Duration</th>
+                <th>Days</th>
+                <th>Reason</th>
+                <th>Status</th>
+                <th>Admin Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminLeavesTableBody">
+              <!-- Dynamically populated via leave.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- Review Action Modal (Approve / Reject with Comment) -->
+    <div
+      id="reviewModal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 100;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      "
+    >
+      <div class="card" style="width: 100%; max-width: 440px; margin: 0">
+        <h3 id="reviewModalTitle" style="margin-bottom: 8px">Review Leave</h3>
+        <p
+          id="reviewModalSub"
+          style="
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 16px;
+          "
+        ></p>
+
+        <form id="reviewActionForm">
+          <input type="hidden" id="reviewLeaveId" value="" />
+          <input type="hidden" id="reviewDecision" value="" />
+
+          <div class="form-group">
+            <label for="adminComment">Comment / Note</label>
+            <input
+              type="text"
+              id="adminComment"
+              class="form-control"
+              placeholder="e.g. Approved. Take care!"
+              required
+            />
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: 10px;
+              margin-top: 16px;
+            "
+          >
+            <button type="button" id="btnCancelReview" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" id="btnConfirmReview" class="btn btn-primary">
+              Confirm
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../js/storage.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/leave.js"></script>
+  </body>
+</html>

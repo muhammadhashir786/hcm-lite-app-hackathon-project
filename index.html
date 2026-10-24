@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HCM Lite - Login & Setup</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="auth-wrapper">
+      <!-- 1. First-Run Setup Form -->
+      <div id="setupBox" class="card auth-box" style="display: none">
+        <h2 style="margin-bottom: 4px">Welcome to HCM Lite</h2>
+        <p
+          style="
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+          "
+        >
+          Setup your company and create the primary Admin account.
+        </p>
+
+        <form id="setupForm" novalidate>
+          <div class="form-group" id="group-compName">
+            <label for="companyName">Company Name</label>
+            <input
+              type="text"
+              id="companyName"
+              class="form-control"
+              placeholder="e.g. Acme Corp"
+              required
+            />
+            <div class="error-text">Company name is required.</div>
+          </div>
+
+          <div class="form-group" id="group-adminName">
+            <label for="adminName">Admin Full Name</label>
+            <input
+              type="text"
+              id="adminName"
+              class="form-control"
+              placeholder="e.g. John Doe"
+              required
+            />
+            <div class="error-text">Admin name is required.</div>
+          </div>
+
+          <div class="form-group" id="group-adminEmail">
+            <label for="adminEmail">Admin Email</label>
+            <input
+              type="email"
+              id="adminEmail"
+              class="form-control"
+              placeholder="admin@company.com"
+              required
+            />
+            <div class="error-text">Please provide a valid email address.</div>
+          </div>
+
+          <div class="form-group" id="group-adminPass">
+            <label for="adminPassword">Password</label>
+            <input
+              type="password"
+              id="adminPassword"
+              class="form-control"
+              placeholder="Create a strong password"
+              required
+            />
+            <div class="error-text">
+              Password must be at least 4 characters.
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            style="width: 100%; margin-top: 8px"
+          >
+            Complete Setup & Launch
+          </button>
+        </form>
+      </div>
+
+      <!-- 2. Regular Login Form -->
+      <div id="loginBox" class="card auth-box" style="display: none">
+        <h2 id="displayCompanyName" style="margin-bottom: 4px">HCM Lite</h2>
+        <p
+          style="
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+          "
+        >
+          Sign in to access your portal.
+        </p>
+
+        <form id="loginForm" novalidate>
+          <div class="form-group" id="group-loginEmail">
+            <label for="loginEmail">Email Address</label>
+            <input
+              type="email"
+              id="loginEmail"
+              class="form-control"
+              placeholder="name@company.com"
+              required
+            />
+            <div class="error-text">Enter a valid email.</div>
+          </div>
+
+          <div class="form-group" id="group-loginPass">
+            <label for="loginPassword">Password</label>
+            <input
+              type="password"
+              id="loginPassword"
+              class="form-control"
+              placeholder="Your password"
+              required
+            />
+            <div class="error-text">Password is required.</div>
+          </div>
+
+          <div
+            id="loginAlert"
+            style="
+              display: none;
+              padding: 10px;
+              margin-bottom: 14px;
+              border-radius: var(--radius-sm);
+              font-size: 0.85rem;
+              background: var(--danger-bg);
+              color: var(--danger);
+            "
+          ></div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%">
+            Sign In
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- External Script Files -->
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+  </body>
+</html>
